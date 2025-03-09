@@ -84,6 +84,10 @@ You can also use it to program and debug the PL through JTAG.
 It has many wizards and helpers with example code.  
 It is a pretty complicated software.  
 RN I'm using version 2024.2.  
+  
+NOTE: You could potentially use Xilinx ISE, which is the predecessor to Vivado.  
+See [wiki](https://en.wikipedia.org/wiki/Xilinx_ISE).  
+IIRC it is a ~20 GB install.  
 
 # General workflow in Vivado  
 
