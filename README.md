@@ -52,6 +52,80 @@ Optionally you need a USB-JTAG adapter for debugging.
 You can also try one of the many cheaper JTAG adapters, like use a raspberry pi or even an rpi pico.  
 (NOTE: you have to set these up yourself, while the first two work out of the box.)  
   
+# Battle with Pico 2  
+  
+I have bought a Pico 2 to use it as a JTAG programmer / debugger.  
+I have spent days to try to make it program the FPGA using [openFPGALoader](https://github.com/trabucayre/openFPGALoader) and [pico-dirtyJtag](https://github.com/phdussud/pico-dirtyJtag).  
+  
+2025-05-19  
+Each try took ~3.5 minutes...  
+Except when noted, I didn't do anything on the computer during programming.  
+  
+Abbreviations:  
+no resistors - No pull-up or pull-down resistors connected to JTAG pins.  
+6MHz - Default frequency set in oFL.  
+la - logic analyzer  
+
+Commands:  
+1. Detect  
+```openFPGALoader --cable dirtyJtag --detect --verbose-level 2```  
+2. Program  
+```openFPGALoader --cable dirtyJtag --freq 6000000 --verbose-level 2 --index-chain 1 --bitstream ./test001.bit```  
+test001.bit was made in Vivado and it is just SW1, an inverter and an LED.  
+A very simple block design.  
+After generating the bitstream, File -> Export -> Bitstream.  
+  
+Tests:  
+  
+no resistors 6MHz la connected  
+-> fails 4/5 with `writeTDI: fill: usb bulk write failed -7actual length: 0`  
+Even after removing / reapplying power, no la capture, write fails 2/3.  
+  
+no resistors 6MHz la not connected  
+NOTE: as soon as I start watching a yt video, write error...  
+After write failed (F) 2x, I have tried again without removing power and success (S).  
+After this, without removing power, write failed 4x.  
+  
+6.8k resistors PU 6MHz la not connected  
+S F F F - power removed before each.  
+S F S F F - power not removed before each.  
+  
+6.8k resistors PU (TDO is PD) 6MHz la not connected  
+S F F F - power removed before each.  
+S S F F F F - power not removed before each.  
+  
+Next day.  
+  
+6.8k resistors PU 1MHz la connected  
+F at 95% after 1 hour...  
+  
+6.8k resistors PU 2MHz la connected  
+Programming ran without errors, but didn't actually program the FPGA...  
+This also took an hour...  
+  
+6.8k resistors PU 10MHz la connected  
+This is very slow, fails.  
+  
+NOTE: Yesterday uploads took 3-4 minutes, now regardless of frequency, they take way to much time. :(  
+Restarting my VM helped...  
+  
+no resistors 10MHz la not connected, watching yt  
+F F F F F F F F F F F F  
+  
+no resistors 10MHz la not connected  
+S F S F F F F F F F  
+  
+no resistors 10MHz la not connected, with usb hub  
+F S S F S F F S S S S - power not removed before each.  
+  
+After all this, I have tried without a VM.  
+It takes 10 seconds and work 6/6!!!  
+Even with watching yt.  
+  
+Turns out, I had to change USB setting to USB 3.0 in Virtualbox setup  
+and now I can program fast and without problems.  
+YAY!!!  
+  
 # Briefly about ZYNQ  
   
 A ZYNQ chip has two parts:  
